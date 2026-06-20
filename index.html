@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema Solar</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#00001a;color:#e8e8f0;font-family:system-ui,sans-serif}
+#wrapper{display:flex;flex-direction:row;width:300vw;height:100vh;transition:transform 0.9s cubic-bezier(0.77,0,0.175,1);}
+
+/* INTRO */
+#intro{width:100vw;height:100vh;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+#bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.65;}
+#intro-overlay{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;padding:24px;}
+#intro h1{font-size:clamp(26px,5vw,54px);font-weight:300;letter-spacing:5px;text-transform:uppercase;color:#fff;text-shadow:0 0 40px rgba(100,160,255,0.6),0 2px 8px rgba(0,0,0,0.8);line-height:1.25;}
+#intro p{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);}
+#explore-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.75);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;padding:11px 22px;border-radius:30px;cursor:pointer;font-family:inherit;transition:all 0.25s;animation:pulse-btn 2.5s ease-in-out infinite;}
+#explore-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+#explore-btn svg{width:18px;height:18px;animation:arrow-right 1.4s ease-in-out infinite;}
+@keyframes arrow-right{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.1)}50%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
+
+/* MAIN */
+#main-panel{width:100vw;height:100vh;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;background:#00001a;}
+
+/* NAV */
+#nav{display:flex;gap:5px;padding:12px 14px 0;overflow-x:auto;scrollbar-width:none;flex-shrink:0;position:relative;z-index:10;}
+#nav::-webkit-scrollbar{display:none}
+.nb{background:rgba(0,0,0,0.45);border:0.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.55);font-size:11px;padding:5px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;letter-spacing:0.3px;font-family:inherit;backdrop-filter:blur(6px);}
+.nb.on{background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.5);color:#fff}
+
+/* PLANET STAGE */
+#planet-stage{position:relative;width:100%;height:60vh;flex-shrink:0;overflow:hidden;}
+#planet-stage video,#planet-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+#planet-stage video.active,#planet-stage img.active{display:block;}
+#planet-stage::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,26,0.1) 0%,rgba(0,0,26,0.0) 35%,rgba(0,0,26,0.9) 100%);pointer-events:none;z-index:2;}
+#planet-label{position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:3;pointer-events:none;}
+#pname{font-size:clamp(28px,6vw,52px);font-weight:300;letter-spacing:4px;color:#fff;text-transform:uppercase;text-shadow:0 2px 20px rgba(0,0,0,0.8);}
+#ptype{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.arrow-side{position:absolute;top:50%;transform:translateY(-50%);z-index:4;background:rgba(0,0,0,0.35);border:0.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:all 0.2s;font-family:inherit;}
+.arrow-side:hover{background:rgba(255,255,255,0.2);color:#fff;}
+#prev-arrow{left:12px;}
+#next-arrow{right:12px;}
+
+/* CARDS */
+#cards-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 14px 14px;display:flex;flex-direction:column;gap:7px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;}
+#cards-wrap::-webkit-scrollbar{width:3px}
+#cards-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+.card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 14px;flex-shrink:0}
+.clabel{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:7px}
+.cdesc{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.6)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.sl{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase}
+.sv{font-size:14px;font-weight:500;color:#fff;margin-top:2px}
+.su{font-size:10px;color:rgba(255,255,255,0.35)}
+.mrow{display:flex;flex-wrap:wrap;gap:5px}
+.mc{font-size:11px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.55)}
+.sbar{height:4px;border-radius:2px;background:rgba(255,255,255,0.08);margin-top:7px;overflow:hidden}
+.sfill{height:100%;border-radius:2px;transition:width 0.6s}
+.orow{display:flex;align-items:center;gap:7px;margin-top:7px}
+.odot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.odist{font-size:12px;color:rgba(255,255,255,0.45)}
+#factbar{background:rgba(255,255,255,0.03);border-top:0.5px solid rgba(255,255,255,0.06);padding:9px 14px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;flex-shrink:0}
+#factbar span{color:rgba(255,255,255,0.6)}
+
+/* BACK BUTTON */
+#back-btn{position:fixed;bottom:24px;left:20px;z-index:100;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all 0.25s;backdrop-filter:blur(8px);box-shadow:0 2px 16px rgba(0,0,0,0.4);opacity:0;pointer-events:none;}
+#back-btn.visible{opacity:1;pointer-events:auto;}
+#back-btn:hover{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.6);}
+
+/* CIERRE */
+#cierre{width:100vw;height:100vh;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+#cierrevid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+#cierre-overlay{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;padding:28px;}
+#cierre-overlay h2{font-size:clamp(22px,4.5vw,48px);font-weight:300;letter-spacing:5px;text-transform:uppercase;color:#fff;text-shadow:0 0 40px rgba(180,220,255,0.5),0 2px 8px rgba(0,0,0,0.9);line-height:1.3;}
+#cierre-overlay p{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);max-width:380px;line-height:1.8;}
+#cierre::before{content:'';position:absolute;inset:0;background:rgba(0,0,10,0.45);z-index:1;}
+#volver-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;padding:11px 22px;border-radius:30px;cursor:pointer;font-family:inherit;transition:all 0.25s;z-index:2;position:relative;}
+#volver-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+
+#cierre{width:100vw;height:100vh;position:relative;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+#cierrevid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+#cierre::before{content:'';position:absolute;inset:0;background:rgba(0,0,10,0.4);z-index:1;}
+#cierre-overlay{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;padding:28px;}
+#cierre-overlay h2{font-size:clamp(22px,4.5vw,48px);font-weight:300;letter-spacing:5px;text-transform:uppercase;color:#fff;text-shadow:0 0 40px rgba(180,220,255,0.5),0 2px 8px rgba(0,0,0,0.9);line-height:1.3;}
+#cierre-overlay p{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);max-width:380px;line-height:1.8;}
+#volver-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;padding:11px 22px;border-radius:30px;cursor:pointer;font-family:inherit;transition:all 0.25s;}
+#volver-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+
+/* AUDIO PLAYER */
+#audio-bar{
+  position:fixed;bottom:24px;right:20px;z-index:200;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,0.55);border:0.5px solid rgba(255,255,255,0.2);
+  border-radius:30px;padding:8px 16px 8px 12px;
+  backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;transition:opacity 0.4s;
+}
+#audio-bar.show{opacity:1;pointer-events:auto;}
+#play-btn{
+  width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,0.15);color:#fff;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;
+}
+#play-btn:hover{background:rgba(255,255,255,0.28);}
+#audio-label{font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:1px;white-space:nowrap;}
+#audio-progress{
+  width:80px;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden;cursor:pointer;
+}
+#audio-fill{height:100%;width:0%;background:rgba(255,255,255,0.6);border-radius:2px;transition:width 0.1s linear;}
+</style>
+</head>
+<body>
+<div id="wrapper">
+  <div id="intro">
+    <video id="bgvid" src="videos/intro.mp4" autoplay muted loop playsinline></video>
+    <audio id="bienvenidos-audio" preload="auto"></audio>
+    <div id="intro-overlay">
+      <p>Bienvenido a</p>
+      <h1>Un viaje por nuestro<br>Sistema Solar</h1>
+      <button id="explore-btn" onclick="goMain()">
+        Explorar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="main-panel">
+    <div id="nav"></div>
+    <div id="planet-stage">
+      <video id="pmedia-galaxia" src="videos/galaxia.mp4" autoplay muted loop playsinline></video>
+      <img id="pmedia-sol" src="imagenes/sol.jpg">
+      <video id="pmedia-mercurio" src="videos/mercurio.mp4" autoplay muted loop playsinline></video>
+      <img id="pmedia-venus" src="imagenes/venus.webp">
+      <video id="pmedia-tierra" src="videos/tierra.mp4" autoplay muted loop playsinline></video>
+      <video id="pmedia-marte" src="videos/marte.mp4" autoplay muted loop playsinline></video>
+      <video id="pmedia-jupiter" src="videos/jupiter.mp4" autoplay muted loop playsinline></video>
+      <video id="pmedia-saturno" src="videos/saturno.mp4" autoplay muted loop playsinline></video>
+      <video id="pmedia-urano" src="videos/urano.mp4" autoplay muted loop playsinline></video>
+      <img id="pmedia-neptuno" src="imagenes/neptuno.jpg">
+      <button class="arrow-side" id="prev-arrow">&#8249;</button>
+      <button class="arrow-side" id="next-arrow">&#8250;</button>
+      <div id="planet-label">
+        <div id="pname"></div>
+        <div id="ptype"></div>
+      </div>
+    </div>
+    <div id="cards-wrap">
+      <div class="card"><div class="clabel">Descripción</div><div class="cdesc" id="pdesc"></div></div>
+      <div class="card"><div class="clabel">Datos clave</div><div class="sgrid" id="pstats"></div></div>
+      <div class="card" id="mooncard"><div class="clabel">Lunas conocidas</div><div class="mrow" id="pmoons"></div></div>
+      <div class="card">
+        <div class="clabel">Tamaño relativo a la Tierra</div>
+        <div class="sbar"><div class="sfill" id="sfill"></div></div>
+        <div class="orow"><div class="odot" id="odot"></div><div class="odist" id="odist"></div></div>
+      </div>
+      <div id="factbar">✦ Dato curioso: <span id="pfact"></span></div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: CIERRE -->
+  <div id="cierre">
+    <video id="cierrevid" src="videos/cierre.mp4" autoplay muted loop playsinline></video>
+    <div id="cierre-overlay">
+      <h2>El universo es infinito.<br>La curiosidad también.</h2>
+      <p>Gracias por explorar nuestro Sistema Solar</p>
+      <button id="volver-btn" onclick="goIntro()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 12l7-7M3 12l7 7"/></svg>
+        Volver al inicio
+      </button>
+    </div>
+  </div>
+</div>
+
+<button id="back-btn" onclick="goIntro()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  ← Inicio
+</button>
+
+<script>
+function goMain(){document.getElementById('wrapper').style.transform='translateX(-100vw)';document.getElementById('back-btn').classList.add('visible');if(window._stopBienvenidos)_stopBienvenidos();setTimeout(function(){var p=P[cur];if(planetAudioMap[p.mediaId]){playVoice(planetAudioMap[p.mediaId]);showAudioBar('🔊 Narración');}},700);}
+function goCierre(){document.getElementById('wrapper').style.transform='translateX(-200vw)';document.getElementById('back-btn').classList.add('visible');if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;}document.getElementById('audio-bar').classList.remove('show');setTimeout(()=>{if(audioBlobs['fin']){currentKey='fin';currentAudio=new Audio(audioBlobs['fin']);currentAudio.play().catch(()=>{});}},600);}
+function goIntro(){document.getElementById('wrapper').style.transform='translateX(0)';document.getElementById('back-btn').classList.remove('visible');}
+
+// Intro video
+// Galaxy video
+// Planet videos
+const P=[
+  {name:"Vía Láctea",type:"Nuestra Galaxia",color:"#a0c4ff",mediaId:"galaxia",desc:"La Vía Láctea es la galaxia espiral donde vive nuestro Sistema Solar. Tiene entre 200.000 y 400.000 millones de estrellas, y nuestro Sol es solo una de ellas, ubicada en uno de sus brazos espirales.",stats:[{l:"Diámetro",v:"105.700",u:"años luz"},{l:"Estrellas",v:"~300.000",u:"millones"},{l:"Edad",v:"13.600",u:"millones años"},{l:"Tipo",v:"Espiral",u:"barrada"}],moons:[],dist:0,sz:1.0,fact:"Tardamos 225 millones de años en darle una vuelta completa a la galaxia viajando con el Sol."},
+  {name:"Sol",type:"Estrella — Tipo G",color:"#ff8c00",mediaId:"sol",desc:"El Sol es la estrella en el centro de nuestro sistema solar. Su enorme gravedad mantiene a todos los planetas en órbita. En su núcleo, la temperatura alcanza 15 millones de °C.",stats:[{l:"Diámetro",v:"1.392.700",u:"km"},{l:"Masa",v:"333.000",u:"× Tierra"},{l:"Temp. superficie",v:"5.500",u:"°C"},{l:"Temp. núcleo",v:"15.000.000",u:"°C"}],moons:[],dist:0,sz:1.0,fact:"El Sol contiene el 99,86% de toda la masa del sistema solar."},
+  {name:"Mercurio",type:"Planeta rocoso",color:"#b5936a",mediaId:"mercurio",desc:"El más pequeño y cercano al Sol. Sus temperaturas oscilan entre −180 °C y 430 °C, la mayor variación del sistema solar.",stats:[{l:"Diámetro",v:"4.879",u:"km"},{l:"Año",v:"88",u:"días"},{l:"Temp. media",v:"167",u:"°C"},{l:"Gravedad",v:"3,7",u:"m/s²"}],moons:[],dist:0.39,sz:0.38,fact:"Un día en Mercurio equivale a 59 días terrestres."},
+  {name:"Venus",type:"Planeta rocoso",color:"#e8c56a",mediaId:"venus",desc:"El planeta más caliente gracias a su denso efecto invernadero. Gira al revés respecto a la mayoría de los planetas.",stats:[{l:"Diámetro",v:"12.104",u:"km"},{l:"Año",v:"225",u:"días"},{l:"Temp. media",v:"464",u:"°C"},{l:"Gravedad",v:"8,9",u:"m/s²"}],moons:[],dist:0.72,sz:0.95,fact:"Un día venusino dura más que su propio año."},
+  {name:"Tierra",type:"Planeta rocoso",color:"#4a9ede",mediaId:"tierra",desc:"Nuestro hogar: el único planeta conocido con vida. Dos tercios de su superficie son océanos de agua líquida.",stats:[{l:"Diámetro",v:"12.742",u:"km"},{l:"Año",v:"365",u:"días"},{l:"Temp. media",v:"15",u:"°C"},{l:"Gravedad",v:"9,8",u:"m/s²"}],moons:["Luna"],dist:1.0,sz:1.0,fact:"Es el único planeta no nombrado tras una deidad romana o griega."},
+  {name:"Marte",type:"Planeta rocoso",color:"#c1440e",mediaId:"marte",desc:"El Planeta Rojo. Alberga Olympus Mons, el volcán más alto del sistema solar con 21 km de altura.",stats:[{l:"Diámetro",v:"6.779",u:"km"},{l:"Año",v:"687",u:"días"},{l:"Temp. media",v:"−63",u:"°C"},{l:"Gravedad",v:"3,7",u:"m/s²"}],moons:["Fobos","Deimos"],dist:1.52,sz:0.53,fact:"El Valle Marineris mide lo mismo que todo el ancho de EE. UU."},
+  {name:"Júpiter",type:"Gigante gaseoso",color:"#c88b4a",mediaId:"jupiter",desc:"El gigante del sistema solar. Su Gran Mancha Roja es una tormenta activa desde hace siglos.",stats:[{l:"Diámetro",v:"139.820",u:"km"},{l:"Año",v:"4.333",u:"días"},{l:"Temp. nubes",v:"−108",u:"°C"},{l:"Gravedad",v:"24,8",u:"m/s²"}],moons:["Ío","Europa","Ganímedes","Calisto","+91"],dist:5.2,sz:0.99,fact:"Su campo magnético es 14 veces más potente que el de la Tierra."},
+  {name:"Saturno",type:"Gigante gaseoso",color:"#e4c47a",mediaId:"saturno",desc:"Sus icónicos anillos están hechos de hielo y roca. Es tan poco denso que flotaría en el agua.",stats:[{l:"Diámetro",v:"116.460",u:"km"},{l:"Año",v:"10.759",u:"días"},{l:"Temp. media",v:"−139",u:"°C"},{l:"Gravedad",v:"10,4",u:"m/s²"}],moons:["Titán","Encélado","Mimas","+142"],dist:9.58,sz:0.95,fact:"Sus anillos tienen 1 km de grosor pero se extienden 282.000 km."},
+  {name:"Urano",type:"Gigante helado",color:"#7de8e8",mediaId:"urano",desc:"Gira sobre su costado con una inclinación de 98°. El metano en su atmósfera le da su color azul-verdoso.",stats:[{l:"Diámetro",v:"50.724",u:"km"},{l:"Año",v:"30.589",u:"días"},{l:"Temp. mín.",v:"−224",u:"°C"},{l:"Gravedad",v:"8,7",u:"m/s²"}],moons:["Titania","Oberón","Miranda","+24"],dist:19.2,sz:0.40,fact:"Urano es el planeta más frío, no Neptuno, a pesar de estar más lejos."},
+  {name:"Neptuno",type:"Gigante helado",color:"#4060e8",mediaId:"neptuno",desc:"El más alejado del Sol. Sus vientos alcanzan 2.100 km/h, los más veloces del sistema solar.",stats:[{l:"Diámetro",v:"49.244",u:"km"},{l:"Año",v:"60.190",u:"días"},{l:"Temp. media",v:"−201",u:"°C"},{l:"Gravedad",v:"11,2",u:"m/s²"}],moons:["Tritón","Proteo","+14"],dist:30.05,sz:0.39,fact:"Tarda 165 años terrestres en completar una sola órbita."}
+];
+
+let cur=0;
+function showMedia(id){
+  document.querySelectorAll('#planet-stage video,#planet-stage img').forEach(el=>{el.classList.remove('active');if(el.tagName==='VIDEO')el.pause();});
+  const el=document.getElementById('pmedia-'+id);
+  el.classList.add('active');
+  if(el.tagName==='VIDEO')el.play().catch(()=>{});
+}
+function buildNav(){
+  const nav=document.getElementById('nav');nav.innerHTML='';
+  P.forEach((p,i)=>{const b=document.createElement('button');b.className='nb'+(i===cur?' on':'');b.textContent=p.name;b.onclick=()=>go(i);nav.appendChild(b);});
+  const fin=document.createElement('button');
+  fin.className='nb';fin.textContent='✦ Fin';
+  fin.style.borderColor='rgba(255,255,255,0.4)';fin.style.color='rgba(255,255,255,0.75)';
+  fin.onclick=goCierre;nav.appendChild(fin);
+}
+function render(){
+  const p=P[cur];
+  document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',i===cur));
+  showMedia(p.mediaId);
+  document.getElementById('pname').textContent=p.name;
+  document.getElementById('ptype').textContent=p.type;
+  document.getElementById('pdesc').textContent=p.desc;
+  document.getElementById('pstats').innerHTML=p.stats.map(s=>`<div><div class="sl">${s.l}</div><div class="sv">${s.v}<span class="su"> ${s.u}</span></div></div>`).join('');
+  const mc=document.getElementById('mooncard');mc.style.display=p.moons.length?'':'none';
+  document.getElementById('pmoons').innerHTML=p.moons.map(m=>`<span class="mc">${m}</span>`).join('');
+  const sf=document.getElementById('sfill');sf.style.width=(Math.min(p.sz,1)*100)+'%';sf.style.background=p.color;
+  document.getElementById('odot').style.background=p.color;
+  document.getElementById('odist').textContent=p.dist+' UA del Sol';
+  document.getElementById('pfact').textContent=p.fact;
+}
+function go(i){cur=i;render();}
+document.getElementById('prev-arrow').onclick=()=>go((cur-1+P.length)%P.length);
+document.getElementById('next-arrow').onclick=()=>go((cur+1)%P.length);
+buildNav();render();
+
+// Closing video
+const audioFiles={galaxia:"audio/VIA LACTEA.mp3",sol:"audio/sol.mp3",mercurio:"audio/mercurio.mp3",venus:"audio/VENUS.mp3",tierra:"audio/la tierra.mp3",marte:"audio/MARTE.mp3",jupiter:"audio/JUPITER.mp3",saturno:"audio/SATURNO.mp3",urano:"audio/URANO.mp3",neptuno:"audio/neptuno.mp3",fin:"audio/fin.mp3"};const audioBlobs={};Object.entries(audioFiles).forEach(([k,u])=>{audioBlobs[k]=u});let currentAudio=null,currentKey=null;function playVoice(key){if(currentAudio){currentAudio.pause();currentAudio.currentTime=0}currentKey=key;currentAudio=new Audio(audioBlobs[key]);currentAudio.play().catch(()=>{});currentAudio.ontimeupdate=()=>{if(!currentAudio||!currentAudio.duration)return;document.getElementById("audio-fill").style.width=((currentAudio.currentTime/currentAudio.duration)*100)+"%"};currentAudio.onended=()=>{document.getElementById("audio-fill").style.width="0%"}}function toggleAudio(){if(!currentAudio)return;currentAudio.paused?currentAudio.play():currentAudio.pause();document.getElementById("play-btn").textContent=currentAudio.paused?"▶":"⏸"}function seekAudio(e){if(!currentAudio||!currentAudio.duration)return;const r=e.currentTarget.getBoundingClientRect();currentAudio.currentTime=((e.clientX-r.left)/r.width)*currentAudio.duration}function showAudioBar(label){document.getElementById("audio-bar").classList.add("show");document.getElementById("audio-label").textContent=label;document.getElementById("play-btn").textContent="⏸";document.getElementById("audio-fill").style.width="0%"}const planetAudioMap={galaxia:"galaxia",sol:"sol",mercurio:"mercurio",venus:"venus",tierra:"tierra",marte:"marte",jupiter:"jupiter",saturno:"saturno",urano:"urano",neptuno:"neptuno"};
+
+// Override showMedia to also trigger audio
+const _origShowMedia = showMedia;
+window.showMedia = function(id) {
+  _origShowMedia(id);
+  if (planetAudioMap[id]) {
+    playVoice(planetAudioMap[id]);
+    showAudioBar('🔊 Narración');
+  }
+};
+
+// Also trigger on initial render
+const _origRender = render;
+window.render = function() {
+  _origRender();
+};
+
+
+(function(){var el=document.getElementById('bienvenidos-audio');el.src='audio/bienvenidos.mp3';window._stopBienvenidos=function(){el.pause();el.currentTime=0};document.getElementById('explore-btn').addEventListener('click',function(){el.play().catch(function(){})})})();</script>
+
+<div id="audio-bar">
+  <button id="play-btn" onclick="toggleAudio()">⏸</button>
+  <span id="audio-label">Narración</span>
+  <div id="audio-progress" onclick="seekAudio(event)">
+    <div id="audio-fill"></div>
+  </div>
+</div>
+<script>
+function seekAudio(e){
+  if(!currentAudio)return;
+  const rect=e.currentTarget.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  currentAudio.currentTime=pct*currentAudio.duration;
+}
+// Auto-play narration when main panel opens
+const _origGoMain=goMain;
+window.goMain=function(){
+  _origGoMain();
+  setTimeout(()=>{
+    const p=P[cur];
+    if(planetAudioMap[p.mediaId]){
+      playVoice(planetAudioMap[p.mediaId]);
+      showAudioBar('🔊 Narración');
+    }
+  },600);
+};
+// Stop audio when going to intro
+const _origGoIntro=goIntro;
+window.goIntro=function(){
+  _origGoIntro();
+  if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;}
+  document.getElementById('audio-bar').classList.remove('show');
+};
+
+
+</script>
+</body>
+</html>
