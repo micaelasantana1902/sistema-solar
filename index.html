@@ -234,11 +234,11 @@ document.getElementById('prev-arrow').onclick=()=>{
   if(cur===0){goCierre();}else{go(cur-1);}
 };
 document.getElementById('next-arrow').onclick=()=>{
-  if(cur >= P.length-1){
+  if(P[cur].mediaId === 'neptuno'){
     goCierre();
-    return;
+  }else{
+    go(cur+1);
   }
-  go(cur+1);
 };
 buildNav();render();
 
