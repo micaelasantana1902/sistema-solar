@@ -234,7 +234,7 @@ document.getElementById('prev-arrow').onclick=()=>{
   if(cur===0){goCierre();}else{go(cur-1);}
 };
 document.getElementById('next-arrow').onclick=()=>{
-  if(cur===P.length-1){goCierre();}else{go(cur+1);}
+  if(cur===P.length-1){goCierre();}else{go(cur++);}
 };
 buildNav();render();
 
