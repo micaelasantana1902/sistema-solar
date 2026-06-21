@@ -263,23 +263,22 @@ window.render = function() {
 
 
 (function(){
-  var el=document.getElementById('bienvenidos-audio');
-  el.src='audio/bienvenidos.mp3';
+  var el = document.getElementById('bienvenidos-audio');
+  el.src = 'audio/bienvenidos.mp3';
 
-  window._stopBienvenidos=function(){
+  window._stopBienvenidos = function(){
     el.pause();
-    el.currentTime=0;
+    el.currentTime = 0;
   };
 
-  document.addEventListener('click',function iniciar(e){
-
-    if(e.target.closest('#explore-btn')) return;
+  document.body.addEventListener('click', function iniciar(e){
+    if(e.target.closest('#explore-btn')){
+      return;
+    }
 
     el.play().catch(function(){});
-    document.removeEventListener('click', iniciar);
-
+    document.body.removeEventListener('click', iniciar);
   });
-
 })();
 </script>
 
@@ -300,7 +299,12 @@ function seekAudio(e){
 // Auto-play narration when main panel opens
 const _origGoMain=goMain;
 window.goMain=function(){
+  if(window._stopBienvenidos){
+    window._stopBienvenidos();
+  }
+
   _origGoMain();
+
   setTimeout(()=>{
     const p=P[cur];
     if(planetAudioMap[p.mediaId]){
