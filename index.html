@@ -234,7 +234,11 @@ document.getElementById('prev-arrow').onclick=()=>{
   if(cur===0){goCierre();}else{go(cur-1);}
 };
 document.getElementById('next-arrow').onclick=()=>{
-  if(cur===P.length-1){goCierre();}else{go(cur++);}
+  if(cur >= P.length-1){
+    goCierre();
+    return;
+  }
+  go(cur+1);
 };
 buildNav();render();
 
