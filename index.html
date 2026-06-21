@@ -230,8 +230,12 @@ function render(){
   document.getElementById('pfact').textContent=p.fact;
 }
 function go(i){cur=i;render();}
-document.getElementById('prev-arrow').onclick=()=>go((cur-1+P.length)%P.length);
-document.getElementById('next-arrow').onclick=()=>go((cur+1)%P.length);
+document.getElementById('prev-arrow').onclick=()=>{
+  if(cur===0){goCierre();}else{go(cur-1);}
+};
+document.getElementById('next-arrow').onclick=()=>{
+  if(cur===P.length-1){goCierre();}else{go(cur+1);}
+};
 buildNav();render();
 
 // Closing video
