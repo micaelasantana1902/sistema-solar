@@ -262,7 +262,26 @@ window.render = function() {
 };
 
 
-//(function(){var el=document.getElementById('bienvenidos-audio');el.src='audio/bienvenidos.mp3';window._stopBienvenidos=function(){el.pause();el.currentTime=0};document.getElementById('explore-btn').addEventListener('click',function(){el.play().catch(function(){})})})();</script>
+(function(){
+  var el=document.getElementById('bienvenidos-audio');
+  el.src='audio/bienvenidos.mp3';
+
+  window._stopBienvenidos=function(){
+    el.pause();
+    el.currentTime=0;
+  };
+
+  document.addEventListener('click',function iniciar(e){
+
+    if(e.target.closest('#explore-btn')) return;
+
+    el.play().catch(function(){});
+    document.removeEventListener('click', iniciar);
+
+  });
+
+})();
+</script>
 
 <div id="audio-bar">
   <button id="play-btn" onclick="toggleAudio()">⏸</button>
